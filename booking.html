@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Next Level Barbershop – Termin buchen</title>
+  <style>
+    :root {
+      /* Colour palette for dark theme */
+      --bg: #0c0c0f;
+      --card: #15151b;
+      --muted: #1e1e26;
+      --brand: #d4a158;
+      --text: #f2f2f7;
+      --subtext: #a9a9b3;
+      --ok: #2ecc71;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    nav {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      z-index: 50;
+      background: rgba(12,12,15,0.8);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid #222;
+    }
+    nav .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+    .brand .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--brand);
+    }
+    .menu {
+      display: flex;
+      gap: 18px;
+    }
+    .menu a {
+      color: var(--subtext);
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .menu a:hover {
+      color: var(--text);
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    /* Hero grid of haircut results */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .hero-grid .tile {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #111;
+    }
+    .hero-grid .tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(1.05);
+    }
+    h1 {
+      font-size: 36px;
+      margin: 24px 0 0;
+    }
+    h2 {
+      font-size: 28px;
+      margin: 0 0 16px;
+    }
+    p.description {
+      color: var(--subtext);
+      margin: 8px 0 24px;
+    }
+    /* Section containers */
+    section {
+      padding: 56px 0;
+      border-top: 1px solid #1a1a22;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid #1f1f27;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .card img {
+      height: 220px;
+      width: 100%;
+      object-fit: cover;
+    }
+    .card .pad {
+      padding: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(212,161,88,0.12);
+      color: var(--brand);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    /* Booking stepper */
+    .booking h2 {
+      margin-bottom: 24px;
+    }
+    .stepper {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #111;
+      border: 1px solid #1f1f27;
+      color: var(--subtext);
+      font-weight: 600;
+    }
+    .step.active {
+      background: rgba(212,161,88,0.12);
+      color: var(--text);
+      border-color: var(--brand);
+    }
+    .box-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .box {
+      background: var(--card);
+      border: 1px solid #1f1f27;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .box:hover {
+      border-color: var(--brand);
+      transform: translateY(-2px);
+    }
+    .box.selected {
+      outline: 2px solid var(--brand);
+    }
+    .hidden {
+      display: none;
+    }
+    .input, .button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #262633;
+      background: #101017;
+      color: var(--text);
+      font-size: 16px;
+    }
+    .button {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #111;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .button:hover {
+      opacity: 0.9;
+    }
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px;
+    }
+    .time {
+      padding: 10px;
+      border: 1px solid #262633;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      background: #101017;
+      font-weight: 600;
+    }
+    .time:hover {
+      border-color: var(--brand);
+    }
+    .time.selected {
+      background: rgba(212,161,88,0.12);
+      border-color: var(--brand);
+    }
+    .help {
+      color: var(--subtext);
+      font-size: 14px;
+    }
+    footer {
+      border-top: 1px solid #1a1a22;
+      padding: 32px 0;
+      text-align: center;
+      color: var(--subtext);
+    }
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .grid-4 { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .time-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="row container">
+      <div class="brand"><span class="dot"></span><span>Next Level Barbershop</span></div>
+      <div class="menu">
+        <a href="index.html#hero">Home</a>
+        <a href="index.html#pro">Pro Clients</a>
+        <a href="booking.html">Termin buchen</a>
+      </div>
+    </div>
+  </nav>
+  <main class="container">
+    <!-- Booking section with interactive flow -->
+    <section id="booking" class="booking">
+      <h2>Termin buchen</h2>
+      <div class="stepper">
+        <div class="step" id="s1">1 · Friseur wählen</div>
+        <div class="step" id="s2">2 · Datum</div>
+        <div class="step" id="s3">3 · Uhrzeit</div>
+        <div class="step" id="s4">4 · Kontaktdaten</div>
+      </div>
+      <!-- Step 1: Barber selection -->
+      <div id="step1" class="box-row">
+        <div class="box" data-barber="Fouad">Fouad</div>
+        <div class="box" data-barber="Shero">Shero</div>
+        <div class="box" data-barber="Barber C">Barber C</div>
+        <div class="box" data-barber="Barber D">Barber D</div>
+      </div>
+      <!-- Step 2: Date input -->
+      <div id="step2" class="hidden" style="margin-top:18px;max-width:350px;">
+        <input class="input" type="date" id="date-input" />
+      </div>
+      <!-- Step 3: Time slots -->
+      <div id="step3" class="hidden" style="margin-top:18px;">
+        <div id="times" class="time-grid"></div>
+      </div>
+      <!-- Step 4: Contact form -->
+      <div id="step4" class="hidden" style="margin-top:18px;max-width:500px;">
+        <input class="input" type="text" id="name-input" placeholder="Name" />
+        <div style="height:8px"></div>
+        <input class="input" type="email" id="email-input" placeholder="E-Mail" />
+        <div style="height:8px"></div>
+        <input class="input" type="tel" id="phone-input" placeholder="Telefon" />
+        <div style="height:8px"></div>
+        <textarea class="input" id="note-input" rows="3" placeholder="Notiz (optional)"></textarea>
+        <div style="height:12px"></div>
+        <button class="button" id="confirm">Termin bestätigen</button>
+        <p id="done" class="help hidden" style="margin-top:10px;color:var(--ok)">✅ Termin gespeichert!</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    © 2025 Next Level Barbershop • Salzburgersstraße 255, 4030 Linz • 📞 +43 676 7314626
+  </footer>
+  <script>
+    // Helpers for step indicator
+    const s1 = document.getElementById('s1');
+    const s2 = document.getElementById('s2');
+    const s3 = document.getElementById('s3');
+    const s4 = document.getElementById('s4');
+    const steps = [s1, s2, s3, s4];
+    function setActiveStep(n) {
+      steps.forEach((el, idx) => el.classList.toggle('active', idx === (n - 1)));
+    }
+    setActiveStep(1);
+    let selectedBarber = null;
+    let selectedDate = '';
+    let selectedTime = null;
+    // Step 1: barber selection
+    document.querySelectorAll('#step1 .box').forEach(box => {
+      box.addEventListener('click', () => {
+        document.querySelectorAll('#step1 .box').forEach(b => b.classList.remove('selected'));
+        box.classList.add('selected');
+        selectedBarber = box.dataset.barber;
+        // Show date picker
+        document.getElementById('step2').classList.remove('hidden');
+        setActiveStep(2);
+      });
+    });
+    // Min date (today) for date input
+    const dateInput = document.getElementById('date-input');
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    const todayISO = new Date(Date.now() - tzOffset).toISOString().split('T')[0];
+    dateInput.min = todayISO;
+    // Generate time slots based on date and barber
+    function generateTimes(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      if (!date || day === 0) return [];
+      const end = (day === 6) ? 18 : 19;
+      const slots = [];
+      for (let h = 9; h < end; h++) {
+        const HH = h.toString().padStart(2, '0');
+        slots.push(`${HH}:00`, `${HH}:30`);
+      }
+      // Remove already booked slots
+      const bookings = JSON.parse(localStorage.getItem('nl_bookings') || '[]');
+      return slots.filter(t => !bookings.some(b => b.date === date && b.time === t && b.barber === selectedBarber));
+    }
+    // Step 2: when selecting date
+    dateInput.addEventListener('change', () => {
+      selectedDate = dateInput.value;
+      selectedTime = null;
+      // Populate times
+      const timesContainer = document.getElementById('times');
+      timesContainer.innerHTML = '';
+      const times = generateTimes(selectedDate);
+      times.forEach(t => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'time';
+        btn.textContent = t;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.time').forEach(x => x.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedTime = t;
+          document.getElementById('step4').classList.remove('hidden');
+          setActiveStep(4);
+        });
+        timesContainer.appendChild(btn);
+      });
+      document.getElementById('step3').classList.remove('hidden');
+      setActiveStep(3);
+    });
+    // Step 4: save booking
+    document.getElementById('confirm').addEventListener('click', () => {
+      const name = (document.getElementById('name-input').value || '').trim();
+      const email = (document.getElementById('email-input').value || '').trim();
+      const phone = (document.getElementById('phone-input').value || '').trim();
+      const note = (document.getElementById('note-input').value || '').trim();
+      if (!selectedBarber || !selectedDate || !selectedTime || !name || !email || !phone) {
+        alert('Bitte alle Pflichtfelder ausfüllen und eine Uhrzeit wählen.');
+        return;
+      }
+      const storeKey = 'nl_bookings';
+      const items = JSON.parse(localStorage.getItem(storeKey) || '[]');
+      items.push({ barber: selectedBarber, date: selectedDate, time: selectedTime, name, email, phone, note });
+      localStorage.setItem(storeKey, JSON.stringify(items));
+      document.getElementById('done').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
