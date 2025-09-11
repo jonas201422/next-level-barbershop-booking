@@ -3,7 +3,8 @@
 Ein statisches One-Page-Prototype für eine Friseursalon-Terminbuchung mit dunklem, modernem UI.
 
 ## Inhalte
-- **index.html** – komplette Seite (HTML, CSS, etwas JS) in einer Datei.
+- **index.html** – Landing Page mit großem Button zur Buchung.
+- **booking.html** – separate Seite mit dem Terminbuchungs‑Flow.
 - **.gitignore** – ignoriert Editor-/Systemdateien.
 - **LICENSE (MIT)** – erlaubt Nutzung, Änderung, Weitergabe.
 - **/.github/workflows/pages.yml** – optional: Auto-Deploy zu GitHub Pages (Actions).
