@@ -1,7 +1,7 @@
 {
   "name": "next-level-barbershop-booking",
   "version": "1.0.0",
-  "description"": "Booking prototype for Next Level Barbershop",
+  "description": "Booking prototype for Next Level Barbershop",
   "scripts": {
     "start": "http-server .",
     "test": "echo \"Keine Tests definiert\" && exit 0"
