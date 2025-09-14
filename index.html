@@ -1,16 +1,156 @@
-    .hero-cta {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 120px 0;
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Next Level Barbershop</title>
+  <style>
+    :root {
+      --bg: #0c0c0f;
+      --card: #15151b;
+      --muted: #1e1e26;
+      --brand: #d4a158;
+      --text: #f2f2f7;
+      --subtext: #a9a9b3;
     }
-    .hero-cta .button {
-      width: auto;
-      max-width: 300px;
-      font-size: 24px;
-    }
-        <a href="booking.html">Termin buchen</a>
-    <!-- Hero call-to-action -->
-    <section id="hero" class="hero-cta">
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Open Sans,Helvetica Neue,sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    nav { position: sticky; top:0; background: rgba(12,12,15,0.8); border-bottom:1px solid #222; z-index:50; }
+    nav .row { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:16px; }
+    nav .brand { display:flex; align-items:center; gap:10px; font-weight:700; }
+    nav .brand .dot { width:12px; height:12px; background: var(--brand); border-radius:50%; }
+    nav .menu { display:flex; gap:20px; }
+    nav .menu a { color: var(--subtext); font-weight:600; text-decoration:none; transition: color .15s; }
+    nav .menu a:hover { color: var(--text); }
+    .button { display:inline-block; padding:12px 20px; background: var(--brand); color:#111; border-radius:12px; font-weight:700; text-decoration:none; transition: opacity .15s; }
+    .button:hover { opacity: 0.9; }
+    .hero { min-height: 80vh; display:flex; align-items:center; justify-content:center; text-align:center; padding: 80px 20px; background: radial-gradient(circle at center, rgba(212,161,88,0.05) 0%, rgba(12,12,15,1) 100%); }
+    .hero .content { background: rgba(0,0,0,0.6); padding: 40px; border-radius: 16px; }
+    .hero h1 { font-size: 42px; margin-bottom:12px; }
+    .hero p { font-size:20px; margin-bottom:24px; color: var(--subtext); }
+    section { padding: 80px 20px; border-top:1px solid #1a1a22; }
+    .container { max-width:1100px; margin:0 auto; }
+    .services-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:20px; margin-top:40px; }
+    .service-card { background: var(--card); padding:24px; border-radius:16px; border:1px solid #1f1f27; text-align:center; transition: transform .15s, border-color .15s; }
+    .service-card:hover { transform: translateY(-2px); border-color: var(--brand); }
+    .service-card img { height: 160px; width:100%; object-fit: cover; border-radius:12px; margin-bottom:12px; }
+    .service-card h3 { margin-bottom:8px; font-size:24px; }
+    .service-card p { color: var(--subtext); margin-bottom:8px; }
+    .service-card .price { font-weight:700; color: var(--brand); margin-bottom:12px; }
+    .gallery-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap:8px; }
+    .gallery-grid img { width:100%; height:160px; object-fit:cover; border-radius:12px; }
+    .team-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:20px; margin-top:40px; }
+    .team-member { text-align:center; }
+    .team-member img { width:100%; height:240px; object-fit:cover; border-radius:50%; margin-bottom:12px; border:4px solid var(--brand); }
+    .team-member h4 { margin-bottom:4px; font-size:20px; }
+    .team-member span { color: var(--subtext); font-size:14px; }
+    .contact-info { text-align:center; margin-top:24px; }
+    .contact-info p { margin-bottom:8px; }
+    footer { padding:40px 20px; border-top:1px solid #1a1a22; text-align:center; font-size:14px; color: var(--subtext); }
+    footer a { color: var(--subtext); margin: 0 8px; text-decoration:none; }
+    footer a:hover { color: var(--brand); }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="row">
+      <div class="brand"><div class="dot"></div>Next Level Barbershop</div>
+      <div class="menu">
+        <a href="#services">Services</a>
+        <a href="#gallery">Galerie</a>
+        <a href="#team">Team</a>
+        <a href="#contact">Kontakt</a>
+        <a href="booking.html" class="button">Termin buchen</a>
+      </div>
+    </div>
+  </nav>
+  <header class="hero">
+    <div class="content">
+      <h1>Upgrade Your Style</h1>
+      <p>Erlebe premium Herrenfrisuren, Bartpflege und mehr – bei Next Level Barbershop in Linz.</p>
       <a href="booking.html" class="button">Termin buchen</a>
+    </div>
+  </header>
+  <section id="services">
+    <div class="container">
+      <h2>Unsere Services</h2>
+      <div class="services-grid">
+        <div class="service-card">
+          <img src="images/service-haircut.jpg" alt="Haarschnitt">
+          <h3>Haarschnitt</h3>
+          <p>Präziser Schnitt und modernes Styling.</p>
+          <div class="price">ab 25 €</div>
+        </div>
+        <div class="service-card">
+          <img src="images/service-beard.jpg" alt="Bartpflege">
+          <h3>Bartpflege</h3>
+          <p>Pflege, Konturieren und Styling für deinen Bart.</p>
+          <div class="price">ab 12 €</div>
+        </div>
+        <div class="service-card">
+          <img src="images/service-kids.jpg" alt="Kinderhaarschnitt">
+          <h3>Kinderhaarschnitt</h3>
+          <p>Sanfter und stylischer Haarschnitt für Kinder.</p>
+          <div class="price">ab 15 €</div>
+        </div>
+        <div class="service-card">
+          <img src="images/service-special.jpg" alt="Spezialpakete">
+          <h3>Spezialpakete</h3>
+          <p>Kombinationen aus Schnitt, Rasur und Pflege.</p>
+          <div class="price">ab 40 €</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="gallery">
+    <div class="container">
+      <h2>Galerie</h2>
+      <div class="gallery-grid">
+        <img src="images/gallery1.jpg" alt="">
+        <img src="images/gallery2.jpg" alt="">
+        <img src="images/gallery3.jpg" alt="">
+        <img src="images/gallery4.jpg" alt="">
+        <img src="images/gallery5.jpg" alt="">
+        <img src="images/gallery6.jpg" alt="">
+      </div>
+    </div>
+  </section>
+  <section id="team">
+    <div class="container">
+      <h2>Unser Team</h2>
+      <div class="team-grid">
+        <div class="team-member">
+          <img src="images/barber1.jpg" alt="Mitarbeiter 1">
+          <h4>Shirwan</h4>
+          <span>Master Barber</span>
+        </div>
+        <div class="team-member">
+          <img src="images/barber2.jpg" alt="Mitarbeiter 2">
+          <h4>Kollege 2</h4>
+          <span>Barber</span>
+        </div>
+        <div class="team-member">
+          <img src="images/barber3.jpg" alt="Mitarbeiter 3">
+          <h4>Kollege 3</h4>
+          <span>Barber</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="contact">
+    <div class="container">
+      <h2>Kontakt & Öffnungszeiten</h2>
+      <div class="contact-info">
+        <p>Adresse: Salzburger Straße 255, 4030 Linz</p>
+        <p>Telefon: 0676 7314626</p>
+        <p>Öffnungszeiten: Mo-Fr 9:00–19:00, Sa 9:00–18:00</p>
+      </div>
+      <p style="text-align:center;"><a href="booking.html" class="button">Jetzt Termin buchen</a></p>
+    </div>
+  </section>
+  <footer>
+    <p>&copy; 2025 Next Level Barbershop.</p>
+    <p>Folgen Sie uns: <a href="https://www.instagram.com/nextlevel.barbershop.linz/" target="_blank">Instagram</a></p>
+  </footer>
+</body>
 </html>
