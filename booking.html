@@ -6,13 +6,13 @@
   <title>Next Level Barbershop – Termin buchen</title>
   <style>
     :root {
-      /* Colour palette for dark theme */
-      --bg: #0c0c0f;
-      --card: #15151b;
-      --muted: #1e1e26;
+      --bg: #040406;
+      --card: rgba(16, 16, 24, 0.8);
+      --muted: rgba(18, 18, 28, 0.8);
       --brand: #d4a158;
-      --text: #f2f2f7;
-      --subtext: #a9a9b3;
+      --accent: #52c1ff;
+      --text: #f5f5f9;
+      --subtext: #a7a7bb;
       --ok: #2ecc71;
     }
     * {
@@ -20,224 +20,316 @@
     }
     html, body {
       margin: 0;
+    }
+    body {
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      line-height: 1.6;
     }
-    img { max-width: 100%; display: block; }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.32;
+      filter: saturate(0.7) brightness(0.7);
+    }
+    body::before {
+      background-image: linear-gradient(120deg, rgba(4, 4, 6, 0.65), rgba(4, 4, 6, 0.92)), url("img/background/IMG_6749.jpeg");
+    }
+    body::after {
+      z-index: -3;
+      opacity: 0.22;
+      mix-blend-mode: screen;
+      background-image: radial-gradient(circle at 18% 24%, rgba(82, 193, 255, 0.28), transparent 55%), url("img/background/temp_image_19538764-4E52-4AB7-842A-04A77E9B7881.webp");
+    }
+    img { max-width: 100%; display: block; border-radius: 16px; }
     a { color: inherit; text-decoration: none; }
     nav {
       position: sticky;
       top: 0;
       width: 100%;
       z-index: 50;
-      background: rgba(12,12,15,0.8);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid #222;
+      background: rgba(6, 6, 12, 0.72);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
     nav .row {
+      max-width: 1100px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 24px;
+      padding: 16px 24px;
+      gap: 20px;
+      letter-spacing: 0.08em;
     }
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       font-weight: 700;
+      text-transform: uppercase;
     }
     .brand .dot {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: var(--brand);
+      background: linear-gradient(135deg, var(--brand), #f3c27d);
+      box-shadow: 0 0 14px rgba(212, 161, 88, 0.55);
     }
     .menu {
       display: flex;
       gap: 18px;
+      text-transform: uppercase;
+      font-size: 13px;
     }
     .menu a {
       color: var(--subtext);
       font-weight: 600;
-      transition: color 0.15s;
+      transition: color 0.2s ease, opacity 0.2s ease;
     }
     .menu a:hover {
       color: var(--text);
+      opacity: 0.85;
+    }
+    main {
+      padding: 60px 20px 120px;
     }
     .container {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 24px;
+      position: relative;
+      z-index: 1;
+      padding: 48px;
+      border-radius: 28px;
+      backdrop-filter: blur(14px);
+      background: rgba(10, 10, 18, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 34px 90px rgba(0, 0, 0, 0.45);
     }
-    /* Hero grid of haircut results */
+    nav .container {
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+    section {
+      position: relative;
+      padding: 70px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(82, 193, 255, 0.08), transparent 60%), linear-gradient(200deg, rgba(8, 8, 12, 0.92), rgba(6, 6, 10, 0.88));
+      z-index: -1;
+      opacity: 0.9;
+    }
+    section.intro::before {
+      background: linear-gradient(160deg, rgba(8, 8, 12, 0.88), rgba(12, 12, 18, 0.82)), url("img/background/temp_image_8C66F222-BD9C-4C45-A02B-9CE9C08362B2.webp") center/cover;
+      opacity: 0.38;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      margin: 26px 0 12px;
+      letter-spacing: -0.01em;
+    }
+    h2 {
+      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      margin: 0 0 18px;
+    }
+    p.description {
+      color: var(--subtext);
+      margin: 12px 0 30px;
+      max-width: 640px;
+    }
     .hero-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
     }
     .hero-grid .tile {
-      aspect-ratio: 4/3;
+      position: relative;
+      aspect-ratio: 4 / 3;
       overflow: hidden;
-      border-radius: 16px;
-      background: #111;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
     }
     .hero-grid .tile img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      filter: saturate(1.05);
+      filter: saturate(1.08);
+      transition: transform 0.35s ease;
     }
-    h1 {
-      font-size: 36px;
-      margin: 24px 0 0;
+    .hero-grid .tile:hover img {
+      transform: scale(1.04);
     }
-    h2 {
-      font-size: 28px;
-      margin: 0 0 16px;
+    .booking {
+      background: rgba(12, 12, 20, 0.6);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 36px;
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.45);
     }
-    p.description {
-      color: var(--subtext);
-      margin: 8px 0 24px;
-    }
-    /* Section containers */
-    section {
-      padding: 56px 0;
-      border-top: 1px solid #1a1a22;
-    }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 12px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid #1f1f27;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    .card img {
-      height: 220px;
-      width: 100%;
-      object-fit: cover;
-    }
-    .card .pad {
-      padding: 12px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(212,161,88,0.12);
-      color: var(--brand);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    /* Booking stepper */
     .booking h2 {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
     .stepper {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
     .step {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
+      gap: 10px;
+      padding: 10px 16px;
       border-radius: 999px;
-      background: #111;
-      border: 1px solid #1f1f27;
+      background: rgba(18, 18, 26, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.04);
       color: var(--subtext);
       font-weight: 600;
+      letter-spacing: 0.05em;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
     }
     .step.active {
-      background: rgba(212,161,88,0.12);
+      background: rgba(212, 161, 88, 0.12);
       color: var(--text);
-      border-color: var(--brand);
+      border-color: rgba(212, 161, 88, 0.55);
     }
     .box-row {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
     }
     .box {
-      background: var(--card);
-      border: 1px solid #1f1f27;
-      border-radius: 16px;
-      padding: 20px;
+      background: rgba(18, 18, 28, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 18px;
+      padding: 22px;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
     .box:hover {
-      border-color: var(--brand);
-      transform: translateY(-2px);
+      transform: translateY(-4px);
+      border-color: rgba(212, 161, 88, 0.4);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.4);
     }
     .box.selected {
-      outline: 2px solid var(--brand);
+      border-color: rgba(212, 161, 88, 0.6);
+      box-shadow: 0 0 0 2px rgba(212, 161, 88, 0.35);
     }
     .hidden {
       display: none;
     }
-    .input, .button {
+    .input,
+    .button {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid #262633;
-      background: #101017;
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(12, 12, 20, 0.78);
       color: var(--text);
       font-size: 16px;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+    .input:focus {
+      outline: none;
+      border-color: rgba(82, 193, 255, 0.6);
+      box-shadow: 0 0 0 2px rgba(82, 193, 255, 0.15);
     }
     .button {
-      background: var(--brand);
-      border-color: var(--brand);
-      color: #111;
+      background: linear-gradient(135deg, var(--brand), #f2c987);
+      border-color: rgba(212, 161, 88, 0.6);
+      color: #120b05;
       font-weight: 800;
       cursor: pointer;
-      transition: opacity 0.15s;
+      letter-spacing: 0.05em;
+      box-shadow: 0 14px 32px rgba(212, 161, 88, 0.28);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .button:hover {
-      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 22px 50px rgba(212, 161, 88, 0.38);
     }
     .time-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
     }
     .time {
-      padding: 10px;
-      border: 1px solid #262633;
-      border-radius: 10px;
+      padding: 12px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
       cursor: pointer;
       text-align: center;
-      background: #101017;
+      background: rgba(18, 18, 30, 0.82);
       font-weight: 600;
+      letter-spacing: 0.04em;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
     .time:hover {
-      border-color: var(--brand);
+      border-color: rgba(212, 161, 88, 0.45);
+      transform: translateY(-2px);
     }
     .time.selected {
-      background: rgba(212,161,88,0.12);
-      border-color: var(--brand);
+      background: rgba(212, 161, 88, 0.18);
+      border-color: rgba(212, 161, 88, 0.55);
     }
     .help {
       color: var(--subtext);
       font-size: 14px;
     }
     footer {
-      border-top: 1px solid #1a1a22;
-      padding: 32px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 40px 20px;
       text-align: center;
       color: var(--subtext);
+      background: rgba(6, 6, 12, 0.7);
+      letter-spacing: 0.04em;
     }
     @media (max-width: 900px) {
       .hero-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-      .grid-4 { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-      .time-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+      .box-row { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+      .time-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+      .container { padding: 36px 30px; }
+      .booking { padding: 28px; }
+    }
+    @media (max-width: 640px) {
+      nav .row {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+      .menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .container {
+        padding: 26px 20px;
+      }
+      .booking {
+        padding: 24px;
+      }
+      .hero-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      }
     }
   </style>
 </head>
@@ -253,9 +345,19 @@
     </div>
   </nav>
   <main class="container">
+    <section class="intro">
+      <div class="hero-grid">
+        <div class="tile"><img src="img/galerie/IMG_6737.jpeg" alt="Fresh Fade im Next Level Barbershop" loading="lazy"></div>
+        <div class="tile"><img src="img/galerie/IMG_6738.jpeg" alt="Spezialpaket für einen schwarzen Kunden" loading="lazy"></div>
+        <div class="tile"><img src="img/galerie/IMG_6744.jpeg" alt="Bartpflege mit Lockenfokus" loading="lazy"></div>
+        <div class="tile"><img src="img/galerie/IMG_6750.jpeg" alt="Premium Werkzeug-Setup im Barbershop" loading="lazy"></div>
+      </div>
+      <h1>Termin buchen</h1>
+      <p class="description">Sichere dir deinen Spot im Next Level Barbershop – mit wenigen Klicks zum persönlichen Grooming-Upgrade für 2025.</p>
+    </section>
     <!-- Booking section with interactive flow -->
     <section id="booking" class="booking">
-      <h2>Termin buchen</h2>
+      <h2>Dein persönlicher Flow</h2>
       <div class="stepper">
         <div class="step" id="s1">1 · Friseur wählen</div>
         <div class="step" id="s2">2 · Datum</div>
