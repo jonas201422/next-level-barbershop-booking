@@ -237,6 +237,103 @@
     .hidden {
       display: none;
     }
+    body.popout-open {
+      overflow: hidden;
+    }
+    #step2 .mobile-trigger {
+      display: none;
+      margin-top: 12px;
+    }
+    #step2 .mobile-selection {
+      display: none;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.02em;
+      color: var(--subtext);
+    }
+    #step2 .mobile-selection strong {
+      color: var(--text);
+    }
+    .mobile-popout {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 20px 16px;
+      background: rgba(4, 4, 6, 0.78);
+      backdrop-filter: blur(14px);
+      z-index: 140;
+    }
+    .mobile-popout.show {
+      display: flex;
+    }
+    .mobile-popout__sheet {
+      width: min(100%, 420px);
+      background: rgba(12, 12, 20, 0.94);
+      border-radius: 24px 24px 0 0;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 20px 20px 28px;
+      box-shadow: 0 -24px 80px rgba(0, 0, 0, 0.55);
+      animation: popSlide 0.28s ease forwards;
+    }
+    .mobile-popout__handle {
+      width: 46px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 auto 16px;
+    }
+    .mobile-popout__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .mobile-popout__title {
+      font-size: 1.05rem;
+      margin: 0;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .mobile-popout__close {
+      border: none;
+      background: rgba(24, 24, 36, 0.9);
+      color: var(--subtext);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .mobile-popout__close:hover {
+      background: rgba(36, 36, 52, 0.9);
+      color: var(--text);
+    }
+    .mobile-popout .help {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .mobile-popout .time-grid {
+      margin-top: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+    }
+    .mobile-popout .time {
+      padding: 14px 10px;
+      font-size: 1rem;
+    }
+    @keyframes popSlide {
+      from {
+        transform: translateY(32px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
     .input,
     .button {
       width: 100%;
@@ -359,6 +456,36 @@
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       }
     }
+    @media (max-width: 768px) {
+      #step2 {
+        max-width: 100%;
+      }
+      #step2 .input {
+        display: none;
+      }
+      #step2 .mobile-trigger {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+      }
+      #step2 .mobile-selection {
+        display: block;
+      }
+      #step2 .mobile-selection.hidden {
+        display: none;
+      }
+      #step3 {
+        display: none !important;
+      }
+    }
+    @media (min-width: 769px) {
+      .mobile-popout {
+        display: none !important;
+      }
+      #step2 .mobile-selection {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -402,6 +529,8 @@
       <!-- Step 2: Date input -->
       <div id="step2" class="hidden" style="margin-top:18px;max-width:350px;">
         <input class="input" type="date" id="date-input" />
+        <button class="button mobile-trigger" id="mobile-popout-trigger" type="button">Datum &amp; Uhrzeit wählen</button>
+        <p id="mobile-selection-summary" class="help mobile-selection hidden"></p>
       </div>
       <!-- Step 3: Time slots -->
       <div id="step3" class="hidden" style="margin-top:18px;">
@@ -420,6 +549,20 @@
         <button class="button" id="confirm">Termin bestätigen</button>
         <p id="done" class="help hidden" style="margin-top:10px;color:var(--ok)">✅ Termin gespeichert!</p>
       </div>
+      <div id="mobile-popout" class="mobile-popout hidden" aria-hidden="true">
+        <div class="mobile-popout__sheet" role="dialog" aria-modal="true" aria-labelledby="mobile-popout-title">
+          <div class="mobile-popout__handle"></div>
+          <div class="mobile-popout__header">
+            <h3 id="mobile-popout-title" class="mobile-popout__title">Datum &amp; Uhrzeit</h3>
+            <button type="button" class="mobile-popout__close" id="mobile-popout-close" aria-label="Auswahl schließen">✕</button>
+          </div>
+          <div class="mobile-popout__content">
+            <input class="input" type="date" id="mobile-date-input" />
+            <p class="help" id="mobile-hint">Verfügbare Slots erscheinen nach der Datumsauswahl.</p>
+            <div id="mobile-times" class="time-grid"></div>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
   <footer>
@@ -436,65 +579,318 @@
       steps.forEach((el, idx) => el.classList.toggle('active', idx === (n - 1)));
     }
     setActiveStep(1);
+
     let selectedBarber = null;
     let selectedDate = '';
     let selectedTime = null;
+
+    const step2El = document.getElementById('step2');
+    const step3El = document.getElementById('step3');
+    const step4El = document.getElementById('step4');
+    const timesContainer = document.getElementById('times');
+    const doneMessage = document.getElementById('done');
+    const dateInput = document.getElementById('date-input');
+    const mobileTrigger = document.getElementById('mobile-popout-trigger');
+    const mobileSummary = document.getElementById('mobile-selection-summary');
+    const mobilePopout = document.getElementById('mobile-popout');
+    const mobileDateInput = document.getElementById('mobile-date-input');
+    const mobileTimes = document.getElementById('mobile-times');
+    const mobileClose = document.getElementById('mobile-popout-close');
+    const mobileHint = document.getElementById('mobile-hint');
+
+    function isMobile() {
+      return window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function updateMobileSummary() {
+      if (!mobileSummary) return;
+      if (selectedDate && selectedTime) {
+        const displayDate = new Intl.DateTimeFormat('de-AT', {
+          weekday: 'short',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }).format(new Date(`${selectedDate}T00:00:00`));
+        mobileSummary.innerHTML = `<strong>${displayDate}</strong> · ${selectedTime} Uhr`;
+        mobileSummary.classList.remove('hidden');
+      } else {
+        mobileSummary.textContent = '';
+        mobileSummary.classList.add('hidden');
+      }
+    }
+
+    function syncDesktopSelection() {
+      if (!timesContainer) return;
+      const current = selectedTime;
+      timesContainer.querySelectorAll('.time').forEach(btn => {
+        btn.classList.toggle('selected', !!current && btn.textContent === current);
+      });
+    }
+
+    function closeMobilePopout() {
+      if (!mobilePopout) return;
+      mobilePopout.classList.remove('show');
+      mobilePopout.classList.add('hidden');
+      mobilePopout.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('popout-open');
+    }
+
+    function renderTimes(container, times, onSelect) {
+      if (!container) return false;
+      container.innerHTML = '';
+      if (!times.length) {
+        const info = document.createElement('p');
+        info.className = 'help';
+        info.textContent = 'Keine freien Slots an diesem Tag.';
+        info.style.gridColumn = '1 / -1';
+        info.style.textAlign = 'center';
+        info.style.paddingTop = '6px';
+        container.appendChild(info);
+        return false;
+      }
+      times.forEach(t => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'time';
+        btn.textContent = t;
+        if (selectedTime === t) {
+          btn.classList.add('selected');
+        }
+        btn.addEventListener('click', () => {
+          container.querySelectorAll('.time').forEach(x => x.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedTime = t;
+          if (typeof onSelect === 'function') {
+            onSelect(t);
+          }
+        });
+        container.appendChild(btn);
+      });
+      return true;
+    }
+
+    function showContactStep() {
+      step4El.classList.remove('hidden');
+      doneMessage.classList.add('hidden');
+      setActiveStep(4);
+      updateMobileSummary();
+      syncDesktopSelection();
+      if (isMobile()) {
+        setTimeout(() => {
+          step4El.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    }
+
+    function populateMobileTimes(timesList) {
+      if (!mobileTimes) return;
+      if (!selectedDate) {
+        mobileTimes.innerHTML = '';
+        if (mobileHint) {
+          mobileHint.textContent = 'Verfügbare Slots erscheinen nach der Datumsauswahl.';
+          mobileHint.classList.remove('hidden');
+        }
+        return;
+      }
+      const times = Array.isArray(timesList) ? timesList : generateTimes(selectedDate);
+      const hasSlots = renderTimes(mobileTimes, times, () => {
+        updateMobileSummary();
+        closeMobilePopout();
+        showContactStep();
+      });
+      if (mobileHint) {
+        if (!hasSlots) {
+          mobileHint.textContent = 'Keine freien Slots an diesem Tag.';
+          mobileHint.classList.remove('hidden');
+        } else {
+          mobileHint.classList.add('hidden');
+        }
+      }
+    }
+
+    function openMobilePopout() {
+      if (!mobilePopout) return;
+      mobilePopout.classList.remove('hidden');
+      mobilePopout.classList.add('show');
+      mobilePopout.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('popout-open');
+      if (mobileDateInput) {
+        if (selectedDate) {
+          mobileDateInput.value = selectedDate;
+          populateMobileTimes();
+        } else {
+          mobileDateInput.value = '';
+          if (mobileTimes) {
+            mobileTimes.innerHTML = '';
+          }
+          if (mobileHint) {
+            mobileHint.textContent = 'Verfügbare Slots erscheinen nach der Datumsauswahl.';
+            mobileHint.classList.remove('hidden');
+          }
+        }
+        setTimeout(() => {
+          try {
+            mobileDateInput.focus({ preventScroll: true });
+          } catch (err) {
+            mobileDateInput.focus();
+          }
+        }, 20);
+      }
+    }
+
+    function resetAfterBarberSelection() {
+      selectedDate = '';
+      selectedTime = null;
+      if (dateInput) {
+        dateInput.value = '';
+      }
+      if (mobileDateInput) {
+        mobileDateInput.value = '';
+      }
+      if (timesContainer) {
+        timesContainer.innerHTML = '';
+      }
+      if (mobileTimes) {
+        mobileTimes.innerHTML = '';
+      }
+      step3El.classList.add('hidden');
+      step4El.classList.add('hidden');
+      doneMessage.classList.add('hidden');
+      updateMobileSummary();
+      if (mobileHint) {
+        mobileHint.textContent = 'Verfügbare Slots erscheinen nach der Datumsauswahl.';
+        mobileHint.classList.remove('hidden');
+      }
+      syncDesktopSelection();
+      closeMobilePopout();
+    }
+
     // Step 1: barber selection
     document.querySelectorAll('#step1 .box').forEach(box => {
       box.addEventListener('click', () => {
+        const alreadySelected = selectedBarber === box.dataset.barber;
         document.querySelectorAll('#step1 .box').forEach(b => b.classList.remove('selected'));
         box.classList.add('selected');
         selectedBarber = box.dataset.barber;
-        // Show date picker
-        document.getElementById('step2').classList.remove('hidden');
-        setActiveStep(2);
+        if (!alreadySelected) {
+          resetAfterBarberSelection();
+        }
+        step2El.classList.remove('hidden');
+        if (isMobile() && (!alreadySelected || !selectedTime)) {
+          openMobilePopout();
+        }
+        if (selectedDate && selectedTime) {
+          setActiveStep(4);
+        } else if (selectedDate) {
+          setActiveStep(3);
+        } else {
+          setActiveStep(2);
+        }
       });
     });
+
     // Min date (today) for date input
-    const dateInput = document.getElementById('date-input');
     const tzOffset = (new Date()).getTimezoneOffset() * 60000;
     const todayISO = new Date(Date.now() - tzOffset).toISOString().split('T')[0];
-    dateInput.min = todayISO;
+    if (dateInput) {
+      dateInput.min = todayISO;
+    }
+    if (mobileDateInput) {
+      mobileDateInput.min = todayISO;
+    }
+
     // Generate time slots based on date and barber
     function generateTimes(date) {
-      const d = new Date(date);
+      if (!date || !selectedBarber) return [];
+      const d = new Date(`${date}T00:00:00`);
       const day = d.getDay();
-      if (!date || day === 0) return [];
+      if (day === 0) return [];
       const end = (day === 6) ? 18 : 19;
       const slots = [];
       for (let h = 9; h < end; h++) {
         const HH = h.toString().padStart(2, '0');
         slots.push(`${HH}:00`, `${HH}:30`);
       }
-      // Remove already booked slots
       const bookings = JSON.parse(localStorage.getItem('nl_bookings') || '[]');
       return slots.filter(t => !bookings.some(b => b.date === date && b.time === t && b.barber === selectedBarber));
     }
-    // Step 2: when selecting date
-    dateInput.addEventListener('change', () => {
-      selectedDate = dateInput.value;
+
+    function handleDateChange(dateValue, source) {
+      selectedDate = dateValue;
       selectedTime = null;
-      // Populate times
-      const timesContainer = document.getElementById('times');
-      timesContainer.innerHTML = '';
+      doneMessage.classList.add('hidden');
+      step4El.classList.add('hidden');
+      updateMobileSummary();
+      if (source === 'mobile' && dateInput) {
+        dateInput.value = dateValue;
+      }
+      if (source === 'desktop' && mobileDateInput) {
+        mobileDateInput.value = dateValue;
+      }
+      if (!selectedDate) {
+        if (timesContainer) {
+          timesContainer.innerHTML = '';
+        }
+        step3El.classList.add('hidden');
+        setActiveStep(2);
+        if (source === 'mobile' || isMobile()) {
+          populateMobileTimes([]);
+        }
+        return;
+      }
       const times = generateTimes(selectedDate);
-      times.forEach(t => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'time';
-        btn.textContent = t;
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.time').forEach(x => x.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedTime = t;
-          document.getElementById('step4').classList.remove('hidden');
-          setActiveStep(4);
-        });
-        timesContainer.appendChild(btn);
-      });
-      document.getElementById('step3').classList.remove('hidden');
+      renderTimes(timesContainer, times, showContactStep);
+      step3El.classList.remove('hidden');
       setActiveStep(3);
+      if (source === 'mobile' || isMobile()) {
+        populateMobileTimes(times);
+      }
+    }
+
+    if (dateInput) {
+      dateInput.addEventListener('change', () => handleDateChange(dateInput.value, 'desktop'));
+    }
+    if (mobileDateInput) {
+      mobileDateInput.addEventListener('change', () => handleDateChange(mobileDateInput.value, 'mobile'));
+    }
+
+    if (mobileTrigger) {
+      mobileTrigger.addEventListener('click', () => {
+        if (!selectedBarber) {
+          alert('Bitte zuerst einen Friseur wählen.');
+          return;
+        }
+        openMobilePopout();
+      });
+    }
+
+    if (mobileClose && mobilePopout) {
+      mobileClose.addEventListener('click', () => {
+        closeMobilePopout();
+        if (!selectedTime) {
+          setActiveStep(selectedDate ? 3 : 2);
+        }
+      });
+      mobilePopout.addEventListener('click', event => {
+        if (event.target === mobilePopout) {
+          closeMobilePopout();
+          if (!selectedTime) {
+            setActiveStep(selectedDate ? 3 : 2);
+          }
+        }
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      if (!isMobile()) {
+        closeMobilePopout();
+        if (selectedDate) {
+          renderTimes(timesContainer, generateTimes(selectedDate), showContactStep);
+          step3El.classList.remove('hidden');
+        }
+      }
     });
+
     // Step 4: save booking
     document.getElementById('confirm').addEventListener('click', () => {
       const name = (document.getElementById('name-input').value || '').trim();
@@ -509,7 +905,7 @@
       const items = JSON.parse(localStorage.getItem(storeKey) || '[]');
       items.push({ barber: selectedBarber, date: selectedDate, time: selectedTime, name, email, phone, note });
       localStorage.setItem(storeKey, JSON.stringify(items));
-      document.getElementById('done').classList.remove('hidden');
+      doneMessage.classList.remove('hidden');
     });
   </script>
 </body>
