@@ -4,106 +4,169 @@ document.addEventListener('DOMContentLoaded', () => {
     yearSpan.textContent = new Date().getFullYear();
   }
 
-  const slider = document.querySelector('.gallery-slider');
-  if (slider) {
-    const slides = Array.from(slider.querySelectorAll('.gallery-slide'));
-    const prevButton = slider.querySelector('[data-action="prev"]');
-    const nextButton = slider.querySelector('[data-action="next"]');
-    const progressBar = slider.querySelector('.slider-progress span');
-    const interval = Number(slider.dataset.interval) || 5000;
+  const galleryRing = document.querySelector('.gallery-ring .ring');
+  if (galleryRing) {
+    const state = {
+      rotation: 0,
+      pointerActive: false,
+      keyboardActive: false,
+      pointerStartX: 0,
+      pointerStartRotation: 0,
+    };
 
-    if (slides.length > 0) {
-      let activeIndex = 0;
-      let autoPlayTimer = null;
-      const maxVisibleOffset = 2;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let animationFrameId = null;
+    let lastTimestamp = null;
 
-      const normaliseIndex = (index) => {
-        const total = slides.length;
-        return ((index % total) + total) % total;
-      };
+    const updateInteractionState = () => {
+      galleryRing.classList.toggle(
+        'is-interacting',
+        state.pointerActive || state.keyboardActive
+      );
+    };
 
-      const relativePosition = (index) => {
-        const total = slides.length;
-        let offset = index - activeIndex;
-        if (offset > total / 2) offset -= total;
-        if (offset < -total / 2) offset += total;
-        return offset;
-      };
+    const setRotation = (value) => {
+      if (!Number.isFinite(value)) return;
+      state.rotation = value;
+      if (state.rotation > 1e6 || state.rotation < -1e6) {
+        state.rotation = state.rotation % 360;
+      }
+      galleryRing.style.setProperty('--rotation', state.rotation.toFixed(3));
+    };
 
-      const updateSlides = () => {
-        slides.forEach((slide, index) => {
-          const position = relativePosition(index);
-          const bounded = Math.max(
-            Math.min(position, maxVisibleOffset + 1),
-            -(maxVisibleOffset + 1)
-          );
-          slide.dataset.position = String(bounded);
-          slide.setAttribute('aria-hidden', position === 0 ? 'false' : 'true');
-        });
-      };
-
-      const restartProgress = () => {
-        if (!progressBar) return;
-        progressBar.style.transition = 'none';
-        progressBar.style.transform = 'scaleX(0)';
-        // force reflow to restart the animation
-        void progressBar.offsetWidth;
-        progressBar.style.transition = `transform ${interval}ms linear`;
-        progressBar.style.transform = 'scaleX(1)';
-      };
-
-      const scheduleNext = () => {
-        if (autoPlayTimer) {
-          clearTimeout(autoPlayTimer);
-        }
-        if (slides.length <= 1) return;
-        restartProgress();
-        autoPlayTimer = setTimeout(() => {
-          goToSlide(activeIndex + 1);
-        }, interval);
-      };
-
-      const goToSlide = (index) => {
-        activeIndex = normaliseIndex(index);
-        updateSlides();
-        scheduleNext();
-      };
-
-      const stopAutoPlay = () => {
-        if (autoPlayTimer) {
-          clearTimeout(autoPlayTimer);
-          autoPlayTimer = null;
-        }
-        if (progressBar) {
-          const computed = getComputedStyle(progressBar).transform;
-          progressBar.style.transition = 'none';
-          progressBar.style.transform = computed === 'none' ? 'scaleX(0)' : computed;
-        }
-      };
-
-      const resumeAutoPlay = () => {
-        scheduleNext();
-      };
-
-      if (prevButton) {
-        prevButton.addEventListener('click', () => {
-          goToSlide(activeIndex - 1);
-        });
+    const autoSpinStep = (timestamp) => {
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
       }
 
-      if (nextButton) {
-        nextButton.addEventListener('click', () => {
-          goToSlide(activeIndex + 1);
-        });
+      const delta = timestamp - lastTimestamp;
+      lastTimestamp = timestamp;
+
+      if (!state.pointerActive && !state.keyboardActive) {
+        const speed = 0.02; // degrees per millisecond
+        setRotation(state.rotation + delta * speed);
       }
 
-      slider.addEventListener('mouseenter', stopAutoPlay);
-      slider.addEventListener('mouseleave', resumeAutoPlay);
-      slider.addEventListener('focusin', stopAutoPlay);
-      slider.addEventListener('focusout', resumeAutoPlay);
+      animationFrameId = window.requestAnimationFrame(autoSpinStep);
+    };
 
-      updateSlides();
-      scheduleNext();
+    const startAutoSpin = () => {
+      if (reduceMotion.matches) {
+        return;
+      }
+      if (animationFrameId !== null) {
+        return;
+      }
+      lastTimestamp = null;
+      animationFrameId = window.requestAnimationFrame(autoSpinStep);
+    };
+
+    const stopAutoSpin = () => {
+      if (animationFrameId === null) {
+        return;
+      }
+      window.cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+      lastTimestamp = null;
+    };
+
+    const handlePointerDown = (event) => {
+      if (event.button !== undefined && event.button !== 0) {
+        return;
+      }
+      event.preventDefault();
+      state.pointerActive = true;
+      state.pointerStartX = event.clientX;
+      state.pointerStartRotation = state.rotation;
+      if (galleryRing.setPointerCapture) {
+        try {
+          galleryRing.setPointerCapture(event.pointerId);
+        } catch (error) {
+          // Ignore browsers that do not support pointer capture.
+        }
+      }
+      updateInteractionState();
+    };
+
+    const handlePointerMove = (event) => {
+      if (!state.pointerActive) {
+        return;
+      }
+      const deltaX = event.clientX - state.pointerStartX;
+      setRotation(state.pointerStartRotation + deltaX * 0.35);
+    };
+
+    const endPointerInteraction = (event) => {
+      if (!state.pointerActive) {
+        return;
+      }
+      state.pointerActive = false;
+      if (
+        event.pointerId !== undefined &&
+        galleryRing.releasePointerCapture &&
+        galleryRing.hasPointerCapture &&
+        galleryRing.hasPointerCapture(event.pointerId)
+      ) {
+        galleryRing.releasePointerCapture(event.pointerId);
+      }
+      updateInteractionState();
+    };
+
+    const handleFocus = () => {
+      state.keyboardActive = true;
+      updateInteractionState();
+    };
+
+    const handleBlur = () => {
+      state.keyboardActive = false;
+      updateInteractionState();
+    };
+
+    const handleKeyDown = (event) => {
+      const step = event.shiftKey ? 36 : 18;
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setRotation(state.rotation - step);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setRotation(state.rotation + step);
+      }
+    };
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        stopAutoSpin();
+      } else {
+        startAutoSpin();
+      }
+    };
+
+    const handleMotionPreference = (event) => {
+      if (event.matches) {
+        stopAutoSpin();
+      } else {
+        startAutoSpin();
+      }
+    };
+
+    galleryRing.addEventListener('pointerdown', handlePointerDown);
+    galleryRing.addEventListener('pointermove', handlePointerMove);
+    galleryRing.addEventListener('pointerup', endPointerInteraction);
+    galleryRing.addEventListener('pointercancel', endPointerInteraction);
+    galleryRing.addEventListener('pointerleave', endPointerInteraction);
+    galleryRing.addEventListener('focus', handleFocus);
+    galleryRing.addEventListener('blur', handleBlur);
+    galleryRing.addEventListener('keydown', handleKeyDown);
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    if (typeof reduceMotion.addEventListener === 'function') {
+      reduceMotion.addEventListener('change', handleMotionPreference);
+    } else if (typeof reduceMotion.addListener === 'function') {
+      reduceMotion.addListener(handleMotionPreference);
     }
+
+    updateInteractionState();
+    handleMotionPreference(reduceMotion);
   }
 });
